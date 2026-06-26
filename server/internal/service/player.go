@@ -115,7 +115,6 @@ func (s *PlayerService) GetStats(ctx context.Context, playerID int64) (domain.St
 	current := 0
 	longest := 0
 	run := 0
-	currentDone := false
 	for i := len(history) - 1; i >= 0; i-- {
 		won := history[i].WinnerID == playerID
 		if won {
@@ -128,7 +127,6 @@ func (s *PlayerService) GetStats(ctx context.Context, playerID int64) (domain.St
 		}
 		// current streak：从最近一局（升序遍历的最后一条，即原始 i==0）回看。
 		// 升序遍历到末尾时 run 即为"最近连胜"。
-		_ = currentDone
 	}
 	// 升序遍历结束后 run 恰好等于"从最近往前的连胜数"（因为最后一段连续胜局未被败局打断）。
 	current = run

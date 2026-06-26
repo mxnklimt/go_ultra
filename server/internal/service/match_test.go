@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -233,5 +234,45 @@ func TestMatchService_History_PrependsStartPoint(t *testing.T) {
 	}
 	if points[1].Rating <= domain.DefaultRating {
 		t.Fatalf("second point should reflect a win, got %d", points[1].Rating)
+	}
+}
+
+func TestMatchService_Record_ConcurrentNoBusyErrors(t *testing.T) {
+	sqlDB, q := newTestDB(t)
+	psvc := NewPlayerService(q, sqlDB)
+	msvc := NewMatchService(q, sqlDB)
+	ctx := testCtx(t)
+
+	alice, _ := psvc.LoginOrCreate(ctx, "alice")
+	psvc.LoginOrCreate(ctx, "bob")
+
+	const n = 20
+	base := time.Date(2026, 6, 25, 8, 0, 0, 0, time.UTC)
+	errs := make(chan error, n)
+	var wg sync.WaitGroup
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			result := "win"
+			if i%2 == 1 {
+				result = "loss"
+			}
+			_, err := msvc.Record(ctx, alice.ID, "bob", result, base.Add(time.Duration(i)*time.Minute))
+			errs <- err
+		}(i)
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("concurrent Record failed (expected 0 errors with _txlock=immediate): %v", err)
+		}
+	}
+	// 并发录入后两人 rating 之和必须守恒
+	pa, _ := psvc.GetByUsername(ctx, "alice")
+	pb, _ := psvc.GetByUsername(ctx, "bob")
+	if pa.Rating+pb.Rating != 2*domain.DefaultRating {
+		t.Fatalf("sum not conserved after concurrent records: %d + %d", pa.Rating, pb.Rating)
 	}
 }

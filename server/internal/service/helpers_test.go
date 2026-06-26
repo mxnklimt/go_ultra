@@ -52,11 +52,7 @@ func mustCreatePlayer(t *testing.T, q *sqlc.Queries, username string, rating int
 
 // TestScaffold 自检：确认临时库能开、迁移能跑、能建玩家。
 func TestScaffold(t *testing.T) {
-	q, _ := newTestDB(t)
-	var queries *sqlc.Queries
-	_ = q
-	sqlDB, qq := newTestDB(t)
-	queries = qq
+	sqlDB, queries := newTestDB(t)
 	if sqlDB == nil || queries == nil {
 		t.Fatal("newTestDB returned nil")
 	}

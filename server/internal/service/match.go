@@ -48,11 +48,11 @@ func NewMatchService(q *sqlc.Queries, db *sql.DB) *MatchService {
 }
 
 // Record 录入一局对局。result="win" 表示提交者获胜（winner=submitter）。
-// 整个读-算-写过程在一个事务内完成，对应 spec 的 BEGIN IMMEDIATE 语义。
+// 整个读-算-写过程在一个事务内完成。
 func (s *MatchService) Record(ctx context.Context, submitterID int64, opponentUsername string, result string, playedAt time.Time) (RecordResult, error) {
-	// 开一个可写事务。modernc sqlite 在事务内首次写时即获取写锁，等价于 BEGIN IMMEDIATE 的目的：
-	// 避免两个并发录入读到同一份 rating 后互相覆盖。busy_timeout=5000 已在 db.New 设置。
-	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	// 开一个事务。db.New 的 DSN 设了 _txlock=immediate，故每个事务在 BEGIN 时即取写锁，
+	// 配合 busy_timeout=5000 让并发录入串行化（而非死锁在锁升级上）；DB 层三条 CHECK 守护零和不变量。
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return RecordResult{}, domain.ErrInternal.WithCause(err)
 	}
@@ -256,6 +256,7 @@ func (s *MatchService) History(ctx context.Context, playerID int64, createdAt ti
 }
 
 // usernameOf 查某玩家的用户名（用于组装对局视角的对手名）。
+// 注意：列表路径每行调用一次，是有意的 N+1；朋友圈规模（<100 人、页大小≤50）可接受，若未来扩容应改为 JOIN。
 func (s *MatchService) usernameOf(ctx context.Context, id int64) (string, error) {
 	p, err := s.q.GetPlayerByID(ctx, id)
 	if err != nil {
