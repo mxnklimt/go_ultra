@@ -52,6 +52,7 @@ WHERE deleted_at IS NOT NULL
 ORDER BY deleted_at DESC;
 
 -- name: CountPlayerWinsLosses :one
+-- All four ? placeholders must be the SAME player_id (wins-filter, losses-filter, then the two WHERE-clause checks).
 SELECT
     CAST(COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS wins,
     CAST(COALESCE(SUM(CASE WHEN loser_id  = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS losses

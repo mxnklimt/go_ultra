@@ -30,6 +30,7 @@ type CountPlayerWinsLossesRow struct {
 	Losses int64 `json:"losses"`
 }
 
+// All four ? placeholders must be the SAME player_id (wins-filter, losses-filter, then the two WHERE-clause checks).
 func (q *Queries) CountPlayerWinsLosses(ctx context.Context, arg CountPlayerWinsLossesParams) (CountPlayerWinsLossesRow, error) {
 	row := q.db.QueryRowContext(ctx, countPlayerWinsLosses,
 		arg.WinnerID,

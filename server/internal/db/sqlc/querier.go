@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	// All four ? placeholders must be the SAME player_id (wins-filter, losses-filter, then the two WHERE-clause checks).
 	CountPlayerWinsLosses(ctx context.Context, arg CountPlayerWinsLossesParams) (CountPlayerWinsLossesRow, error)
 	CreateAdminSession(ctx context.Context, arg CreateAdminSessionParams) error
 	CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error)
