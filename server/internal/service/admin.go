@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"errors"
+	"sync"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,6 +21,15 @@ const adminPasswordHashKey = "admin_password_hash"
 type AdminService struct {
 	q  *sqlc.Queries
 	db *sql.DB
+
+	// 登录失败指数退避状态。设计取舍：
+	//  1. 全局锁定（非按 IP）——系统仅一个管理员，全局计数让攻击者无法靠轮换 IP 绕过退避。
+	//  2. 状态存内存，进程重启清零——单机朋友圈部署可接受；重启需本机访问权限，不构成穷举通道。
+	//  3. nowFunc 可注入以便测试，零值回退 time.Now，避免测试依赖真实时钟与 sleep。
+	mu          sync.Mutex
+	failCount   int
+	lockedUntil time.Time
+	nowFunc     func() time.Time
 }
 
 // NewAdminService 构造 AdminService。
@@ -173,4 +183,48 @@ func GenerateAdminPassword() (plaintext, hash string, err error) {
 		return "", "", herr
 	}
 	return plaintext, string(h), nil
+}
+
+// adminLockoutCap 是单次锁定时长的封顶（spec §8.1：封顶 1 小时）。
+const adminLockoutCap = time.Hour
+
+// now 返回当前时间，优先用可注入的 nowFunc（测试用），否则回退 time.Now。
+// 调用方必须已持有 s.mu。
+func (s *AdminService) now() time.Time {
+	if s.nowFunc != nil {
+		return s.nowFunc()
+	}
+	return time.Now()
+}
+
+// CheckLockout 在当前处于锁定窗口内时返回 domain.ErrRateLimited，否则返回 nil。
+// 应在校验管理员密码之前调用。
+func (s *AdminService) CheckLockout() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.now().Before(s.lockedUntil) {
+		return domain.ErrRateLimited
+	}
+	return nil
+}
+
+// RecordLoginFailure 记录一次密码校验失败：失败次数自增，并把锁定截止时间
+// 设为 now + min(2^failCount 秒, 1 小时)。
+func (s *AdminService) RecordLoginFailure() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.failCount++
+	backoff := time.Duration(1<<uint(s.failCount)) * time.Second
+	if backoff > adminLockoutCap || backoff <= 0 { // backoff<=0 防大位移溢出
+		backoff = adminLockoutCap
+	}
+	s.lockedUntil = s.now().Add(backoff)
+}
+
+// ResetLoginFailures 在登录成功后清空失败计数与锁定窗口。
+func (s *AdminService) ResetLoginFailures() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.failCount = 0
+	s.lockedUntil = time.Time{}
 }

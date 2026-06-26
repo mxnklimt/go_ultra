@@ -27,6 +27,9 @@ type authAdminService interface {
 	CreateAdminSession(ctx context.Context) (token string, expiresAt time.Time, err error)
 	CheckAdminSession(ctx context.Context, token string) (bool, time.Time, error)
 	DeleteAdminSession(ctx context.Context, token string) error
+	CheckLockout() error
+	RecordLoginFailure()
+	ResetLoginFailures()
 }
 
 type loginRequest struct {
@@ -153,22 +156,36 @@ func currentUsername(c *gin.Context, p authPlayerService) (playerDTO, bool) {
 	return toPlayerDTO(pl), true
 }
 
-// handleAdminLogin 校验密码并创建管理员会话。
+// handleAdminLogin 校验密码并创建管理员会话；带登录失败指数退避。
 func (h *authHandler) handleAdminLogin(c *gin.Context) {
+	// 进入即检查退避锁定：锁定期间直接返回 429 RATE_LIMITED，
+	// 不消耗 bcrypt 校验，也不再累加失败计数。
+	if err := h.admin.CheckLockout(); err != nil {
+		respondError(c, err)
+		return
+	}
+
 	var req adminLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		respondError(c, domain.ErrInvalidBody.WithCause(err))
 		return
 	}
+
 	ok, err := h.admin.VerifyPassword(c.Request.Context(), req.Password)
 	if err != nil {
 		respondError(c, err)
 		return
 	}
 	if !ok {
+		// 密码错误：累加失败计数（触发/延长指数退避），返回 400。
+		h.admin.RecordLoginFailure()
 		respondError(c, domain.ErrInvalidParam)
 		return
 	}
+
+	// 密码正确：清空退避状态，再建立管理员会话。
+	h.admin.ResetLoginFailures()
+
 	token, expiresAt, err := h.admin.CreateAdminSession(c.Request.Context())
 	if err != nil {
 		respondError(c, err)
