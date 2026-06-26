@@ -60,11 +60,12 @@ func buildRouter(cfg config.Config) (*gin.Engine, func(), error) {
 	}
 
 	deps := handler.Deps{
-		Player:      playerSvc,
-		Match:       matchSvc,
-		Leaderboard: leaderboardSvc,
-		Admin:       adminSvc,
-		Logger:      logger,
+		Player:         playerSvc,
+		Match:          matchSvc,
+		Leaderboard:    leaderboardSvc,
+		Admin:          adminSvc,
+		Logger:         logger,
+		AllowedOrigins: cfg.AllowedOrigins,
 	}
 	return handler.NewRouter(deps), cleanup, nil
 }

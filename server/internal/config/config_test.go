@@ -20,3 +20,11 @@ func TestLoad_DBOverride(t *testing.T) {
 		t.Fatalf("DBPath = %q, want /tmp/custom.db", cfg.DBPath)
 	}
 }
+
+func TestLoad_AllowedOriginsDefault(t *testing.T) {
+	t.Setenv("GO_ULTRA_DB", "")
+	cfg := Load()
+	if len(cfg.AllowedOrigins) != 1 || cfg.AllowedOrigins[0] != "http://localhost:5173" {
+		t.Fatalf("AllowedOrigins = %v, want [http://localhost:5173]", cfg.AllowedOrigins)
+	}
+}

@@ -46,6 +46,9 @@ func newTestServer(t *testing.T) *testServer {
 		Leaderboard: service.NewLeaderboardService(q, sqlDB),
 		Admin:       adminSvc,
 		Logger:      zerolog.Nop(),
+		// CSRF Origin 校验白名单：测试用固定源，配合 do() 在每个请求上带的
+		// Origin 头，使所有写请求（POST/DELETE）能通过 OriginCheck。
+		AllowedOrigins: []string{"http://test.local"},
 	}
 	return &testServer{
 		t:              t,
@@ -65,6 +68,9 @@ func (ts *testServer) do(method, path, body string, cookies ...*http.Cookie) *ht
 		r = httptest.NewRequest(method, path, strings.NewReader(body))
 		r.Header.Set("Content-Type", "application/json")
 	}
+	// 所有请求都带白名单内的 Origin 头，使写请求（POST/DELETE）通过 CSRF
+	// OriginCheck；安全方法（GET）本就豁免，带上也无副作用。
+	r.Header.Set("Origin", "http://test.local")
 	for _, ck := range cookies {
 		r.AddCookie(ck)
 	}

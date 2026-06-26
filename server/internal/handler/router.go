@@ -10,11 +10,12 @@ import (
 
 // Deps 是装配 router 所需的全部依赖。
 type Deps struct {
-	Player      *service.PlayerService
-	Match       *service.MatchService
-	Leaderboard *service.LeaderboardService
-	Admin       *service.AdminService
-	Logger      zerolog.Logger
+	Player         *service.PlayerService
+	Match          *service.MatchService
+	Leaderboard    *service.LeaderboardService
+	Admin          *service.AdminService
+	Logger         zerolog.Logger
+	AllowedOrigins []string // CSRF Origin 头白名单，传给 middleware.OriginCheck
 }
 
 // NewRouter 装配全局中间件与全部路由。
@@ -37,6 +38,9 @@ func NewRouter(deps Deps) *gin.Engine {
 	adminAuth := middleware.AdminAuth(deps.Admin)
 
 	api := r.Group("/api")
+	// CSRF 防护：对所有非安全方法（POST/PUT/PATCH/DELETE）校验 Origin 头。
+	// 安全方法（GET/HEAD/OPTIONS）由中间件内部放行，故 /api/healthz 不受影响。
+	api.Use(middleware.OriginCheck(deps.AllowedOrigins))
 	{
 		// 健康检查（无鉴权）。
 		api.GET("/healthz", handleHealthz)
