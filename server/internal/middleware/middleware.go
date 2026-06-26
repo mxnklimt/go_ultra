@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"runtime/debug"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -68,7 +69,7 @@ func Recover() gin.HandlerFunc {
 			if rec := recover(); rec != nil {
 				if v, ok := c.Get(CtxLogger); ok {
 					if lg, ok := v.(zerolog.Logger); ok {
-						lg.Error().Interface("panic", rec).Msg("recovered from panic")
+						lg.Error().Interface("panic", rec).Bytes("stack", debug.Stack()).Msg("recovered from panic")
 					}
 				}
 				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{

@@ -9,6 +9,7 @@ import (
 	"go_ultra/internal/session"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 )
 
 // PlayerSessionChecker 校验玩家会话 token，返回对应 playerID。
@@ -22,16 +23,25 @@ type AdminSessionChecker interface {
 	CheckAdminSession(ctx context.Context, token string) (ok bool, expiresAt time.Time, err error)
 }
 
-// abort 把 domain.Error 写成统一 JSON 并终止链；非 domain.Error 一律 500。
+// abort 把 domain.Error 写成统一 JSON 并终止链；非 domain.Error 一律 500。5xx 记录 Cause 便于排查。
 func abort(c *gin.Context, err error) {
-	if de, ok := err.(*domain.Error); ok && de != nil {
-		c.AbortWithStatusJSON(de.Status, gin.H{
-			"error": gin.H{"code": de.Code, "message": de.Message},
-		})
-		return
+	de, ok := err.(*domain.Error)
+	if !ok || de == nil {
+		de = domain.ErrInternal.WithCause(err)
 	}
-	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-		"error": gin.H{"code": domain.ErrInternal.Code, "message": domain.ErrInternal.Message},
+	if de.Status >= http.StatusInternalServerError {
+		if v, ok := c.Get(CtxLogger); ok {
+			if lg, ok := v.(zerolog.Logger); ok {
+				ev := lg.Error().Str("code", de.Code).Str("message", de.Message)
+				if de.Cause != nil {
+					ev = ev.Err(de.Cause)
+				}
+				ev.Msg("auth error")
+			}
+		}
+	}
+	c.AbortWithStatusJSON(de.Status, gin.H{
+		"error": gin.H{"code": de.Code, "message": de.Message},
 	})
 }
 
