@@ -5,8 +5,9 @@ package domain
 const RankFloor = 1050
 
 // Dan 把等级分映射为段位：
-//   rating < RankFloor        -> 0（未定级）
-//   tier = (rating-800)/200，封顶 9
+//
+//	rating < RankFloor        -> 0（未定级）
+//	tier = (rating-800)/200，封顶 9
 func Dan(rating int) int {
 	if rating < RankFloor {
 		return 0
