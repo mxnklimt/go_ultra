@@ -12,8 +12,8 @@ import (
 
 const countPlayerWinsLosses = `-- name: CountPlayerWinsLosses :one
 SELECT
-    COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0) AS wins,
-    COALESCE(SUM(CASE WHEN loser_id  = ? THEN 1 ELSE 0 END), 0) AS losses
+    CAST(COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS wins,
+    CAST(COALESCE(SUM(CASE WHEN loser_id  = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS losses
 FROM matches
 WHERE (winner_id = ? OR loser_id = ?) AND deleted_at IS NULL
 `
@@ -26,8 +26,8 @@ type CountPlayerWinsLossesParams struct {
 }
 
 type CountPlayerWinsLossesRow struct {
-	Wins   interface{} `json:"wins"`
-	Losses interface{} `json:"losses"`
+	Wins   int64 `json:"wins"`
+	Losses int64 `json:"losses"`
 }
 
 func (q *Queries) CountPlayerWinsLosses(ctx context.Context, arg CountPlayerWinsLossesParams) (CountPlayerWinsLossesRow, error) {

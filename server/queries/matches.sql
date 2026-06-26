@@ -53,7 +53,7 @@ ORDER BY deleted_at DESC;
 
 -- name: CountPlayerWinsLosses :one
 SELECT
-    COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0) AS wins,
-    COALESCE(SUM(CASE WHEN loser_id  = ? THEN 1 ELSE 0 END), 0) AS losses
+    CAST(COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS wins,
+    CAST(COALESCE(SUM(CASE WHEN loser_id  = ? THEN 1 ELSE 0 END), 0) AS INTEGER) AS losses
 FROM matches
 WHERE (winner_id = ? OR loser_id = ?) AND deleted_at IS NULL;
