@@ -28,3 +28,13 @@ func TestLoad_AllowedOriginsDefault(t *testing.T) {
 		t.Fatalf("AllowedOrigins = %v, want [http://localhost:5173]", cfg.AllowedOrigins)
 	}
 }
+
+func TestLoad_AllowedOriginsOverride(t *testing.T) {
+	t.Setenv("GO_ULTRA_ALLOWED_ORIGINS", "https://go-ultra.example.com, http://localhost:5173")
+	cfg := Load()
+	if len(cfg.AllowedOrigins) != 2 ||
+		cfg.AllowedOrigins[0] != "https://go-ultra.example.com" ||
+		cfg.AllowedOrigins[1] != "http://localhost:5173" {
+		t.Fatalf("AllowedOrigins = %v, want [https://go-ultra.example.com http://localhost:5173]", cfg.AllowedOrigins)
+	}
+}

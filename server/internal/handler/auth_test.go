@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -120,5 +122,28 @@ func TestAdminLogin_WrongPassword_400(t *testing.T) {
 	w := ts.do(http.MethodPost, "/api/admin/login", `{"password":"definitely-wrong"}`)
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400; body=%s", w.Code, w.Body.String())
+	}
+}
+
+func TestAdminLogin_MissingOrigin_400(t *testing.T) {
+	ts := newTestServer(t)
+	// Build the request manually WITHOUT the Origin header that ts.do() injects,
+	// to verify OriginCheck is actually mounted on the /api group.
+	req := httptest.NewRequest(http.MethodPost, "/api/admin/login",
+		strings.NewReader(`{"password":"x"}`))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400 (CSRF Origin check); body=%s", w.Code, w.Body.String())
+	}
+	var b struct {
+		Error struct {
+			Code string `json:"code"`
+		} `json:"error"`
+	}
+	_ = json.Unmarshal(w.Body.Bytes(), &b)
+	if b.Error.Code != "INVALID_PARAM" {
+		t.Fatalf("code = %q, want INVALID_PARAM", b.Error.Code)
 	}
 }

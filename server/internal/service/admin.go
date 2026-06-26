@@ -214,8 +214,13 @@ func (s *AdminService) RecordLoginFailure() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.failCount++
+	if s.failCount > 63 {
+		s.failCount = 63
+	}
 	backoff := time.Duration(1<<uint(s.failCount)) * time.Second
-	if backoff > adminLockoutCap || backoff <= 0 { // backoff<=0 防大位移溢出
+	// backoff<=0 防溢出：failCount≥55 时 (1<<n)*1e9(=2^9*5^9) 低 64 位为 0，int64 乘积回绕为 0；
+	// failCount≥63 时左移触及符号位致负值。两种情况都封顶到 adminLockoutCap(1h)。
+	if backoff > adminLockoutCap || backoff <= 0 {
 		backoff = adminLockoutCap
 	}
 	s.lockedUntil = s.now().Add(backoff)
