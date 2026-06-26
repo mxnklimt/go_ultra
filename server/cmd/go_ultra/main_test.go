@@ -10,6 +10,31 @@ import (
 	"go_ultra/internal/config"
 )
 
+func TestDispatch(t *testing.T) {
+	tests := []struct {
+		name       string
+		args       []string
+		wantAction string
+		wantCode   int
+	}{
+		{"no args runs server", []string{}, "serve", 0},
+		{"reset subcommand", []string{"reset-admin-password"}, "reset-admin-password", 0},
+		{"unknown subcommand", []string{"frobnicate"}, "usage", 2},
+		{"too many args", []string{"reset-admin-password", "extra"}, "usage", 2},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			action, code := dispatch(tt.args)
+			if action != tt.wantAction {
+				t.Errorf("dispatch(%v) action = %q, want %q", tt.args, action, tt.wantAction)
+			}
+			if code != tt.wantCode {
+				t.Errorf("dispatch(%v) code = %d, want %d", tt.args, code, tt.wantCode)
+			}
+		})
+	}
+}
+
 func TestBuildRouter_Healthz(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll("logs") })
 	cfg := config.Config{

@@ -226,6 +226,21 @@ func (s *AdminService) RecordLoginFailure() {
 	s.lockedUntil = s.now().Add(backoff)
 }
 
+// ResetPassword 强制重新生成管理员密码（覆盖已有 admin_password_hash），返回新明文。
+func (s *AdminService) ResetPassword(ctx context.Context) (string, error) {
+	plaintext, hash, err := GenerateAdminPassword()
+	if err != nil {
+		return "", domain.ErrInternal.WithCause(err)
+	}
+	if err := s.q.SetSetting(ctx, sqlc.SetSettingParams{
+		Key:   adminPasswordHashKey,
+		Value: hash,
+	}); err != nil {
+		return "", domain.ErrInternal.WithCause(err)
+	}
+	return plaintext, nil
+}
+
 // ResetLoginFailures 在登录成功后清空失败计数与锁定窗口。
 func (s *AdminService) ResetLoginFailures() {
 	s.mu.Lock()
