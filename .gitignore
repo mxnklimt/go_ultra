@@ -6,15 +6,24 @@
 
 # SQLite
 *.db
+*.db-journal
 *.db-wal
 *.db-shm
 
 # logs
+*.log
 /logs/
+
+# secrets / local config
+.env
+.env.*
 
 # frontend
 /web/node_modules/
 /web/dist/
+
+# tooling scratch
+.superpowers/
 
 # IDE / OS
 .idea/
