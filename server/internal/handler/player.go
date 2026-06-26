@@ -34,7 +34,7 @@ type playerHandler struct {
 type playerListItem struct {
 	ID          int64   `json:"id"`
 	Username    string  `json:"username"`
-	Rating      int     `json:"rating"`
+	Rating      float64 `json:"rating"`
 	Dan         int     `json:"dan"`
 	GamesPlayed int     `json:"games_played"`
 	WinRate     float64 `json:"win_rate"`
@@ -43,7 +43,7 @@ type playerListItem struct {
 type playerDetail struct {
 	ID        int64       `json:"id"`
 	Username  string      `json:"username"`
-	Rating    int         `json:"rating"`
+	Rating    float64     `json:"rating"`
 	Dan       int         `json:"dan"`
 	CreatedAt string      `json:"created_at"`
 	Stats     playerStats `json:"stats"`
@@ -58,18 +58,18 @@ type playerStats struct {
 }
 
 type historyPointDTO struct {
-	PlayedAt string `json:"played_at"`
-	Rating   int    `json:"rating"`
+	PlayedAt string  `json:"played_at"`
+	Rating   float64 `json:"rating"`
 }
 
 type matchViewDTO struct {
-	ID           int64  `json:"id"`
-	Opponent     string `json:"opponent"`
-	Result       string `json:"result"`
-	RatingBefore int    `json:"rating_before"`
-	RatingAfter  int    `json:"rating_after"`
-	Delta        int    `json:"delta"`
-	PlayedAt     string `json:"played_at"`
+	ID           int64   `json:"id"`
+	Opponent     string  `json:"opponent"`
+	Result       string  `json:"result"`
+	RatingBefore float64 `json:"rating_before"`
+	RatingAfter  float64 `json:"rating_after"`
+	Delta        float64 `json:"delta"`
+	PlayedAt     string  `json:"played_at"`
 }
 
 // handleListPlayers 返回所有玩家（按 rating DESC）及其统计。

@@ -24,9 +24,9 @@ func TestListPlayers_ReturnsArray(t *testing.T) {
 		t.Fatalf("status = %d, want 200; body=%s", w.Code, w.Body.String())
 	}
 	var arr []struct {
-		Username string `json:"username"`
-		Rating   int    `json:"rating"`
-		Dan      int    `json:"dan"`
+		Username string  `json:"username"`
+		Rating   float64 `json:"rating"`
+		Dan      int     `json:"dan"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &arr); err != nil {
 		t.Fatalf("invalid json %q: %v", w.Body.String(), err)
@@ -85,8 +85,8 @@ func TestPlayerHistory_HasStartingPoint(t *testing.T) {
 		t.Fatalf("status = %d, want 200; body=%s", w.Code, w.Body.String())
 	}
 	var pts []struct {
-		PlayedAt string `json:"played_at"`
-		Rating   int    `json:"rating"`
+		PlayedAt string  `json:"played_at"`
+		Rating   float64 `json:"rating"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &pts); err != nil {
 		t.Fatalf("invalid json %q: %v", w.Body.String(), err)
@@ -95,8 +95,8 @@ func TestPlayerHistory_HasStartingPoint(t *testing.T) {
 	if len(pts) < 1 {
 		t.Fatalf("history len = %d, want >= 1", len(pts))
 	}
-	if pts[0].Rating != 1500 {
-		t.Fatalf("first point rating = %d, want 1500", pts[0].Rating)
+	if pts[0].Rating != 1500.0 {
+		t.Fatalf("first point rating = %v, want 1500.0", pts[0].Rating)
 	}
 }
 

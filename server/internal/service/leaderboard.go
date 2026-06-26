@@ -16,7 +16,7 @@ var comparePalette = []string{"#4a9eff", "#7fd6a3", "#8b5cf6", "#e0c47d", "#f080
 type LeaderboardRow struct {
 	Rank        int
 	Username    string
-	Rating      int
+	Rating      float64
 	Dan         int
 	GamesPlayed int
 	WinRate     float64
@@ -86,8 +86,8 @@ func (s *LeaderboardService) List(ctx context.Context, minGames int) ([]Leaderbo
 		rows = append(rows, LeaderboardRow{
 			Rank:        rank,
 			Username:    p.Username,
-			Rating:      int(p.Rating),
-			Dan:         domain.Dan(int(p.Rating)),
+			Rating:      p.Rating,
+			Dan:         domain.Dan(p.Rating),
 			GamesPlayed: games,
 			WinRate:     winRate,
 		})

@@ -38,11 +38,11 @@ func testCtx(t *testing.T) context.Context {
 }
 
 // mustCreatePlayer 直接经 Queries 建一个玩家，返回其 ID（绕过 service，仅用于布置测试前置数据）。
-func mustCreatePlayer(t *testing.T, q *sqlc.Queries, username string, rating int) int64 {
+func mustCreatePlayer(t *testing.T, q *sqlc.Queries, username string, rating float64) int64 {
 	t.Helper()
 	p, err := q.CreatePlayer(context.Background(), sqlc.CreatePlayerParams{
 		Username: username,
-		Rating:   int64(rating),
+		Rating:   rating,
 	})
 	if err != nil {
 		t.Fatalf("CreatePlayer(%q) error: %v", username, err)
@@ -56,7 +56,7 @@ func TestScaffold(t *testing.T) {
 	if sqlDB == nil || queries == nil {
 		t.Fatal("newTestDB returned nil")
 	}
-	id := mustCreatePlayer(t, queries, "scaffold_user", 1500)
+	id := mustCreatePlayer(t, queries, "scaffold_user", 1500.00)
 	if id <= 0 {
 		t.Fatalf("expected positive player id, got %d", id)
 	}
@@ -64,7 +64,7 @@ func TestScaffold(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetPlayerByID error: %v", err)
 	}
-	if got.Username != "scaffold_user" || got.Rating != 1500 {
+	if got.Username != "scaffold_user" || got.Rating != 1500.00 {
 		t.Fatalf("round-trip mismatch: %+v", got)
 	}
 }

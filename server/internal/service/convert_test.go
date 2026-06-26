@@ -40,14 +40,14 @@ func TestToDomainPlayer(t *testing.T) {
 	row := sqlc.Player{
 		ID:        7,
 		Username:  "alice",
-		Rating:    1500,
+		Rating:    1500.00,
 		CreatedAt: "2026-06-25T14:30:00Z",
 	}
 	p, err := toDomainPlayer(row)
 	if err != nil {
 		t.Fatalf("toDomainPlayer error: %v", err)
 	}
-	if p.ID != 7 || p.Username != "alice" || p.Rating != 1500 {
+	if p.ID != 7 || p.Username != "alice" || p.Rating != 1500.00 {
 		t.Fatalf("toDomainPlayer scalar mismatch: %+v", p)
 	}
 	if !p.CreatedAt.Equal(time.Date(2026, 6, 25, 14, 30, 0, 0, time.UTC)) {
@@ -62,12 +62,12 @@ func TestToDomainMatch(t *testing.T) {
 		WinnerID:           1,
 		LoserID:            2,
 		SubmitterID:        1,
-		WinnerRatingBefore: 1500,
-		LoserRatingBefore:  1500,
-		WinnerRatingAfter:  1508,
-		LoserRatingAfter:   1492,
-		WinnerDelta:        8,
-		LoserDelta:         -8,
+		WinnerRatingBefore: 1500.00,
+		LoserRatingBefore:  1500.00,
+		WinnerRatingAfter:  1508.00,
+		LoserRatingAfter:   1492.00,
+		WinnerDelta:        8.00,
+		LoserDelta:         -8.00,
 		PlayedAt:           "2026-06-25T14:30:00Z",
 		CreatedAt:          "2026-06-25T14:30:01Z",
 		DeletedAt:          sql.NullString{String: del, Valid: true},
@@ -77,7 +77,7 @@ func TestToDomainMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("toDomainMatch error: %v", err)
 	}
-	if m.ID != 3 || m.WinnerID != 1 || m.LoserID != 2 || m.WinnerDelta != 8 || m.LoserDelta != -8 {
+	if m.ID != 3 || m.WinnerID != 1 || m.LoserID != 2 || m.WinnerDelta != 8.00 || m.LoserDelta != -8.00 {
 		t.Fatalf("toDomainMatch scalar mismatch: %+v", m)
 	}
 	if m.DeletedAt == nil || !m.DeletedAt.Equal(time.Date(2026, 6, 26, 0, 0, 0, 0, time.UTC)) {

@@ -33,7 +33,7 @@ func TestDanFromCSVFixture(t *testing.T) {
 		if len(row) != 2 {
 			t.Fatalf("line %d: expected 2 columns, got %d (%v)", lineNo, len(row), row)
 		}
-		rating, err := strconv.Atoi(row[0])
+		rating, err := strconv.ParseFloat(row[0], 64)
 		if err != nil {
 			t.Fatalf("line %d: bad rating %q: %v", lineNo, row[0], err)
 		}
@@ -42,7 +42,7 @@ func TestDanFromCSVFixture(t *testing.T) {
 			t.Fatalf("line %d: bad expected_dan %q: %v", lineNo, row[1], err)
 		}
 		if got := Dan(rating); got != expected {
-			t.Fatalf("line %d: Dan(%d) = %d, want %d", lineNo, rating, got, expected)
+			t.Fatalf("line %d: Dan(%v) = %d, want %d", lineNo, rating, got, expected)
 		}
 	}
 }

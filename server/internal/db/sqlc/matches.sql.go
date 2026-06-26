@@ -61,17 +61,17 @@ RETURNING id, winner_id, loser_id, submitter_id, winner_rating_before, loser_rat
 `
 
 type CreateMatchParams struct {
-	WinnerID           int64  `json:"winner_id"`
-	LoserID            int64  `json:"loser_id"`
-	SubmitterID        int64  `json:"submitter_id"`
-	WinnerRatingBefore int64  `json:"winner_rating_before"`
-	LoserRatingBefore  int64  `json:"loser_rating_before"`
-	WinnerRatingAfter  int64  `json:"winner_rating_after"`
-	LoserRatingAfter   int64  `json:"loser_rating_after"`
-	WinnerDelta        int64  `json:"winner_delta"`
-	LoserDelta         int64  `json:"loser_delta"`
-	PlayedAt           string `json:"played_at"`
-	CreatedAt          string `json:"created_at"`
+	WinnerID           int64   `json:"winner_id"`
+	LoserID            int64   `json:"loser_id"`
+	SubmitterID        int64   `json:"submitter_id"`
+	WinnerRatingBefore float64 `json:"winner_rating_before"`
+	LoserRatingBefore  float64 `json:"loser_rating_before"`
+	WinnerRatingAfter  float64 `json:"winner_rating_after"`
+	LoserRatingAfter   float64 `json:"loser_rating_after"`
+	WinnerDelta        float64 `json:"winner_delta"`
+	LoserDelta         float64 `json:"loser_delta"`
+	PlayedAt           string  `json:"played_at"`
+	CreatedAt          string  `json:"created_at"`
 }
 
 func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
@@ -148,11 +148,11 @@ type GetPlayerHistoryParams struct {
 }
 
 type GetPlayerHistoryRow struct {
-	PlayedAt          string `json:"played_at"`
-	WinnerID          int64  `json:"winner_id"`
-	LoserID           int64  `json:"loser_id"`
-	WinnerRatingAfter int64  `json:"winner_rating_after"`
-	LoserRatingAfter  int64  `json:"loser_rating_after"`
+	PlayedAt          string  `json:"played_at"`
+	WinnerID          int64   `json:"winner_id"`
+	LoserID           int64   `json:"loser_id"`
+	WinnerRatingAfter float64 `json:"winner_rating_after"`
+	LoserRatingAfter  float64 `json:"loser_rating_after"`
 }
 
 func (q *Queries) GetPlayerHistory(ctx context.Context, arg GetPlayerHistoryParams) ([]GetPlayerHistoryRow, error) {

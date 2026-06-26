@@ -13,10 +13,10 @@ import (
 // RecordResult 是录入一局后返回给调用方的结果（相对提交者视角）。
 type RecordResult struct {
 	MatchID           int64
-	WinnerDelta       int
-	LoserDelta        int
-	NewSelfRating     int
-	NewOpponentRating int
+	WinnerDelta       float64
+	LoserDelta        float64
+	NewSelfRating     float64
+	NewOpponentRating float64
 }
 
 // MatchView 是某个玩家视角下的一条对局展示数据。
@@ -24,16 +24,16 @@ type MatchView struct {
 	ID           int64
 	Opponent     string
 	Result       string // 相对查询玩家："win" | "loss"
-	RatingBefore int
-	RatingAfter  int
-	Delta        int
+	RatingBefore float64
+	RatingAfter  float64
+	Delta        float64
 	PlayedAt     time.Time
 }
 
 // HistoryPoint 是历史曲线上的一个 (时间, 分数) 点。
 type HistoryPoint struct {
 	PlayedAt time.Time
-	Rating   int
+	Rating   float64
 }
 
 // MatchService 负责对局录入与查询。
@@ -83,14 +83,14 @@ func (s *MatchService) Record(ctx context.Context, submitterID int64, opponentUs
 
 	// 根据 result 决定谁是 winner。
 	var winnerID, loserID int64
-	var winnerBefore, loserBefore int
+	var winnerBefore, loserBefore float64
 	switch result {
 	case "win":
 		winnerID, loserID = submitter.ID, opponent.ID
-		winnerBefore, loserBefore = int(submitter.Rating), int(opponent.Rating)
+		winnerBefore, loserBefore = submitter.Rating, opponent.Rating
 	case "loss":
 		winnerID, loserID = opponent.ID, submitter.ID
-		winnerBefore, loserBefore = int(opponent.Rating), int(submitter.Rating)
+		winnerBefore, loserBefore = opponent.Rating, submitter.Rating
 	default:
 		return RecordResult{}, domain.ErrInvalidParam
 	}
@@ -104,12 +104,12 @@ func (s *MatchService) Record(ctx context.Context, submitterID int64, opponentUs
 		WinnerID:           winnerID,
 		LoserID:            loserID,
 		SubmitterID:        submitterID,
-		WinnerRatingBefore: int64(winnerBefore),
-		LoserRatingBefore:  int64(loserBefore),
-		WinnerRatingAfter:  int64(winnerAfter),
-		LoserRatingAfter:   int64(loserAfter),
-		WinnerDelta:        int64(delta),
-		LoserDelta:         int64(-delta),
+		WinnerRatingBefore: winnerBefore,
+		LoserRatingBefore:  loserBefore,
+		WinnerRatingAfter:  winnerAfter,
+		LoserRatingAfter:   loserAfter,
+		WinnerDelta:        delta,
+		LoserDelta:         -delta,
 		PlayedAt:           formatTime(playedAt),
 		CreatedAt:          formatTime(now),
 	})
@@ -119,13 +119,13 @@ func (s *MatchService) Record(ctx context.Context, submitterID int64, opponentUs
 
 	if err := qtx.UpdatePlayerRating(ctx, sqlc.UpdatePlayerRatingParams{
 		ID:     winnerID,
-		Rating: int64(winnerAfter),
+		Rating: winnerAfter,
 	}); err != nil {
 		return RecordResult{}, domain.ErrInternal.WithCause(err)
 	}
 	if err := qtx.UpdatePlayerRating(ctx, sqlc.UpdatePlayerRatingParams{
 		ID:     loserID,
-		Rating: int64(loserAfter),
+		Rating: loserAfter,
 	}); err != nil {
 		return RecordResult{}, domain.ErrInternal.WithCause(err)
 	}
@@ -175,9 +175,9 @@ func (s *MatchService) ListGlobal(ctx context.Context, limit, offset int) ([]Mat
 			ID:           m.ID,
 			Opponent:     opp,
 			Result:       "win",
-			RatingBefore: int(m.WinnerRatingBefore),
-			RatingAfter:  int(m.WinnerRatingAfter),
-			Delta:        int(m.WinnerDelta),
+			RatingBefore: m.WinnerRatingBefore,
+			RatingAfter:  m.WinnerRatingAfter,
+			Delta:        m.WinnerDelta,
 			PlayedAt:     playedAt,
 		})
 	}
@@ -209,9 +209,9 @@ func (s *MatchService) ListByPlayer(ctx context.Context, playerID int64, limit, 
 			}
 			mv.Opponent = oppName
 			mv.Result = "win"
-			mv.RatingBefore = int(m.WinnerRatingBefore)
-			mv.RatingAfter = int(m.WinnerRatingAfter)
-			mv.Delta = int(m.WinnerDelta)
+			mv.RatingBefore = m.WinnerRatingBefore
+			mv.RatingAfter = m.WinnerRatingAfter
+			mv.Delta = m.WinnerDelta
 		} else {
 			oppName, oerr := s.usernameOf(ctx, m.WinnerID)
 			if oerr != nil {
@@ -219,9 +219,9 @@ func (s *MatchService) ListByPlayer(ctx context.Context, playerID int64, limit, 
 			}
 			mv.Opponent = oppName
 			mv.Result = "loss"
-			mv.RatingBefore = int(m.LoserRatingBefore)
-			mv.RatingAfter = int(m.LoserRatingAfter)
-			mv.Delta = int(m.LoserDelta)
+			mv.RatingBefore = m.LoserRatingBefore
+			mv.RatingAfter = m.LoserRatingAfter
+			mv.Delta = m.LoserDelta
 		}
 		views = append(views, mv)
 	}
@@ -244,11 +244,11 @@ func (s *MatchService) History(ctx context.Context, playerID int64, createdAt ti
 		if perr != nil {
 			return nil, domain.ErrInternal.WithCause(perr)
 		}
-		var rating int
+		var rating float64
 		if r.WinnerID == playerID {
-			rating = int(r.WinnerRatingAfter)
+			rating = r.WinnerRatingAfter
 		} else {
-			rating = int(r.LoserRatingAfter)
+			rating = r.LoserRatingAfter
 		}
 		points = append(points, HistoryPoint{PlayedAt: playedAt, Rating: rating})
 	}

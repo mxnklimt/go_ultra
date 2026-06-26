@@ -19,12 +19,12 @@ type Match struct {
 	WinnerID           int64          `json:"winner_id"`
 	LoserID            int64          `json:"loser_id"`
 	SubmitterID        int64          `json:"submitter_id"`
-	WinnerRatingBefore int64          `json:"winner_rating_before"`
-	LoserRatingBefore  int64          `json:"loser_rating_before"`
-	WinnerRatingAfter  int64          `json:"winner_rating_after"`
-	LoserRatingAfter   int64          `json:"loser_rating_after"`
-	WinnerDelta        int64          `json:"winner_delta"`
-	LoserDelta         int64          `json:"loser_delta"`
+	WinnerRatingBefore float64        `json:"winner_rating_before"`
+	LoserRatingBefore  float64        `json:"loser_rating_before"`
+	WinnerRatingAfter  float64        `json:"winner_rating_after"`
+	LoserRatingAfter   float64        `json:"loser_rating_after"`
+	WinnerDelta        float64        `json:"winner_delta"`
+	LoserDelta         float64        `json:"loser_delta"`
 	PlayedAt           string         `json:"played_at"`
 	CreatedAt          string         `json:"created_at"`
 	DeletedAt          sql.NullString `json:"deleted_at"`
@@ -32,10 +32,10 @@ type Match struct {
 }
 
 type Player struct {
-	ID        int64  `json:"id"`
-	Username  string `json:"username"`
-	Rating    int64  `json:"rating"`
-	CreatedAt string `json:"created_at"`
+	ID        int64   `json:"id"`
+	Username  string  `json:"username"`
+	Rating    float64 `json:"rating"`
+	CreatedAt string  `json:"created_at"`
 }
 
 type Session struct {

@@ -57,20 +57,20 @@ func TestRecordMatch_Success_201(t *testing.T) {
 		t.Fatalf("status = %d, want 201; body=%s", w.Code, w.Body.String())
 	}
 	var res struct {
-		ID                int64 `json:"id"`
-		WinnerDelta       int   `json:"winner_delta"`
-		LoserDelta        int   `json:"loser_delta"`
-		NewSelfRating     int   `json:"new_self_rating"`
-		NewOpponentRating int   `json:"new_opponent_rating"`
+		ID                int64   `json:"id"`
+		WinnerDelta       float64 `json:"winner_delta"`
+		LoserDelta        float64 `json:"loser_delta"`
+		NewSelfRating     float64 `json:"new_self_rating"`
+		NewOpponentRating float64 `json:"new_opponent_rating"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &res); err != nil {
 		t.Fatalf("invalid json %q: %v", w.Body.String(), err)
 	}
 	if res.WinnerDelta+res.LoserDelta != 0 {
-		t.Fatalf("delta not zero-sum: %d + %d", res.WinnerDelta, res.LoserDelta)
+		t.Fatalf("delta not zero-sum: %v + %v", res.WinnerDelta, res.LoserDelta)
 	}
-	if res.NewSelfRating <= 1500 {
-		t.Fatalf("winner new rating = %d, want > 1500", res.NewSelfRating)
+	if res.NewSelfRating <= 1500.0 {
+		t.Fatalf("winner new rating = %v, want > 1500.0", res.NewSelfRating)
 	}
 }
 

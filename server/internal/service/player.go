@@ -53,7 +53,7 @@ func (s *PlayerService) LoginOrCreate(ctx context.Context, username string) (dom
 	// 不存在 → 创建。
 	created, err := s.q.CreatePlayer(ctx, sqlc.CreatePlayerParams{
 		Username: name,
-		Rating:   int64(domain.DefaultRating),
+		Rating:   domain.DefaultRating,
 	})
 	if err != nil {
 		// 并发下可能撞唯一约束：再查一次，保证幂等。

@@ -16,8 +16,8 @@ RETURNING id, username, rating, created_at
 `
 
 type CreatePlayerParams struct {
-	Username string `json:"username"`
-	Rating   int64  `json:"rating"`
+	Username string  `json:"username"`
+	Rating   float64 `json:"rating"`
 }
 
 func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error) {
@@ -106,8 +106,8 @@ WHERE id = ?
 `
 
 type UpdatePlayerRatingParams struct {
-	Rating int64 `json:"rating"`
-	ID     int64 `json:"id"`
+	Rating float64 `json:"rating"`
+	ID     int64   `json:"id"`
 }
 
 func (q *Queries) UpdatePlayerRating(ctx context.Context, arg UpdatePlayerRatingParams) error {

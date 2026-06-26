@@ -52,7 +52,7 @@ func toDomainPlayer(p sqlc.Player) (domain.Player, error) {
 	return domain.Player{
 		ID:        p.ID,
 		Username:  p.Username,
-		Rating:    int(p.Rating),
+		Rating:    p.Rating,
 		CreatedAt: createdAt,
 	}, nil
 }
@@ -76,12 +76,12 @@ func toDomainMatch(m sqlc.Match) (domain.Match, error) {
 		WinnerID:           m.WinnerID,
 		LoserID:            m.LoserID,
 		SubmitterID:        m.SubmitterID,
-		WinnerRatingBefore: int(m.WinnerRatingBefore),
-		LoserRatingBefore:  int(m.LoserRatingBefore),
-		WinnerRatingAfter:  int(m.WinnerRatingAfter),
-		LoserRatingAfter:   int(m.LoserRatingAfter),
-		WinnerDelta:        int(m.WinnerDelta),
-		LoserDelta:         int(m.LoserDelta),
+		WinnerRatingBefore: m.WinnerRatingBefore,
+		LoserRatingBefore:  m.LoserRatingBefore,
+		WinnerRatingAfter:  m.WinnerRatingAfter,
+		LoserRatingAfter:   m.LoserRatingAfter,
+		WinnerDelta:        m.WinnerDelta,
+		LoserDelta:         m.LoserDelta,
 		PlayedAt:           playedAt,
 		CreatedAt:          createdAt,
 		DeletedAt:          deletedAt,

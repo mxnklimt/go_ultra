@@ -37,11 +37,11 @@ type recordMatchRequest struct {
 }
 
 type recordResultDTO struct {
-	ID                int64 `json:"id"`
-	WinnerDelta       int   `json:"winner_delta"`
-	LoserDelta        int   `json:"loser_delta"`
-	NewSelfRating     int   `json:"new_self_rating"`
-	NewOpponentRating int   `json:"new_opponent_rating"`
+	ID                int64   `json:"id"`
+	WinnerDelta       float64 `json:"winner_delta"`
+	LoserDelta        float64 `json:"loser_delta"`
+	NewSelfRating     float64 `json:"new_self_rating"`
+	NewOpponentRating float64 `json:"new_opponent_rating"`
 }
 
 type deletedMatchDTO struct {

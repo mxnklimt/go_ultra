@@ -5,7 +5,7 @@ import "time"
 type Player struct {
 	ID        int64
 	Username  string
-	Rating    int
+	Rating    float64
 	CreatedAt time.Time
 }
 
@@ -22,12 +22,12 @@ type Match struct {
 	WinnerID           int64
 	LoserID            int64
 	SubmitterID        int64
-	WinnerRatingBefore int
-	LoserRatingBefore  int
-	WinnerRatingAfter  int
-	LoserRatingAfter   int
-	WinnerDelta        int
-	LoserDelta         int
+	WinnerRatingBefore float64
+	LoserRatingBefore  float64
+	WinnerRatingAfter  float64
+	LoserRatingAfter   float64
+	WinnerDelta        float64
+	LoserDelta         float64
 	PlayedAt           time.Time
 	CreatedAt          time.Time
 	DeletedAt          *time.Time

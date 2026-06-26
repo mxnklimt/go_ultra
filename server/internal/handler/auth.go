@@ -42,11 +42,11 @@ type adminLoginRequest struct {
 
 // playerDTO 是 player 的 JSON 表示（snake_case）。
 type playerDTO struct {
-	ID        int64  `json:"id"`
-	Username  string `json:"username"`
-	Rating    int    `json:"rating"`
-	Dan       int    `json:"dan"`
-	CreatedAt string `json:"created_at"`
+	ID        int64   `json:"id"`
+	Username  string  `json:"username"`
+	Rating    float64 `json:"rating"`
+	Dan       int     `json:"dan"`
+	CreatedAt string  `json:"created_at"`
 }
 
 func toPlayerDTO(p domain.Player) playerDTO {

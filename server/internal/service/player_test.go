@@ -23,7 +23,7 @@ func TestPlayerService_LoginOrCreate_CreatesWithDefaultRating(t *testing.T) {
 		t.Fatalf("username not trimmed: %q", p.Username)
 	}
 	if p.Rating != domain.DefaultRating {
-		t.Fatalf("rating = %d, want %d", p.Rating, domain.DefaultRating)
+		t.Fatalf("rating = %v, want %v", p.Rating, domain.DefaultRating)
 	}
 	if p.ID <= 0 {
 		t.Fatalf("expected positive id, got %d", p.ID)
@@ -115,12 +115,12 @@ func insertMatch(t *testing.T, q *sqlc.Queries, winnerID, loserID, submitterID i
 		WinnerID:           winnerID,
 		LoserID:            loserID,
 		SubmitterID:        submitterID,
-		WinnerRatingBefore: 1500,
-		LoserRatingBefore:  1500,
-		WinnerRatingAfter:  1508,
-		LoserRatingAfter:   1492,
-		WinnerDelta:        8,
-		LoserDelta:         -8,
+		WinnerRatingBefore: 1500.00,
+		LoserRatingBefore:  1500.00,
+		WinnerRatingAfter:  1508.00,
+		LoserRatingAfter:   1492.00,
+		WinnerDelta:        8.00,
+		LoserDelta:         -8.00,
 		PlayedAt:           formatTime(playedAt),
 		CreatedAt:          formatTime(playedAt),
 	})
@@ -134,8 +134,8 @@ func TestPlayerService_GetStats_StreaksAndWinRate(t *testing.T) {
 	svc := NewPlayerService(q, sqlDB)
 	ctx := testCtx(t)
 
-	a := mustCreatePlayer(t, q, "streak_a", 1500)
-	b := mustCreatePlayer(t, q, "streak_b", 1500)
+	a := mustCreatePlayer(t, q, "streak_a", 1500.00)
+	b := mustCreatePlayer(t, q, "streak_b", 1500.00)
 
 	base := time.Date(2026, 6, 25, 10, 0, 0, 0, time.UTC)
 	// 时间升序录入：a 的结果序列为 W W L W W W（最后三连胜）
@@ -171,7 +171,7 @@ func TestPlayerService_GetStats_NoMatches(t *testing.T) {
 	svc := NewPlayerService(q, sqlDB)
 	ctx := testCtx(t)
 
-	a := mustCreatePlayer(t, q, "lonely", 1500)
+	a := mustCreatePlayer(t, q, "lonely", 1500.00)
 	stats, err := svc.GetStats(ctx, a)
 	if err != nil {
 		t.Fatalf("GetStats error: %v", err)
@@ -187,9 +187,9 @@ func TestPlayerService_ListByRating_Ordered(t *testing.T) {
 	svc := NewPlayerService(q, sqlDB)
 	ctx := testCtx(t)
 
-	mustCreatePlayer(t, q, "low", 1400)
-	mustCreatePlayer(t, q, "high", 1600)
-	mustCreatePlayer(t, q, "mid", 1500)
+	mustCreatePlayer(t, q, "low", 1400.00)
+	mustCreatePlayer(t, q, "high", 1600.00)
+	mustCreatePlayer(t, q, "mid", 1500.00)
 
 	list, err := svc.ListByRating(ctx)
 	if err != nil {

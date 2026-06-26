@@ -7,8 +7,8 @@ import (
 
 func TestPlayerFields(t *testing.T) {
 	now := time.Now().UTC()
-	p := Player{ID: 1, Username: "alice", Rating: 1500, CreatedAt: now}
-	if p.ID != 1 || p.Username != "alice" || p.Rating != 1500 || !p.CreatedAt.Equal(now) {
+	p := Player{ID: 1, Username: "alice", Rating: 1500.00, CreatedAt: now}
+	if p.ID != 1 || p.Username != "alice" || p.Rating != 1500.00 || !p.CreatedAt.Equal(now) {
 		t.Fatalf("Player fields not assignable as expected: %+v", p)
 	}
 }
@@ -28,19 +28,19 @@ func TestMatchFields(t *testing.T) {
 		WinnerID:           1,
 		LoserID:            2,
 		SubmitterID:        1,
-		WinnerRatingBefore: 1500,
-		LoserRatingBefore:  1500,
-		WinnerRatingAfter:  1508,
-		LoserRatingAfter:   1492,
-		WinnerDelta:        8,
-		LoserDelta:         -8,
+		WinnerRatingBefore: 1500.00,
+		LoserRatingBefore:  1500.00,
+		WinnerRatingAfter:  1508.00,
+		LoserRatingAfter:   1492.00,
+		WinnerDelta:        8.00,
+		LoserDelta:         -8.00,
 		PlayedAt:           now,
 		CreatedAt:          now,
 		DeletedAt:          &now,
 		DeletedBy:          &delBy,
 	}
 	if m.WinnerDelta+m.LoserDelta != 0 {
-		t.Fatalf("expected zero-sum deltas, got %d and %d", m.WinnerDelta, m.LoserDelta)
+		t.Fatalf("expected zero-sum deltas, got %v and %v", m.WinnerDelta, m.LoserDelta)
 	}
 	if m.DeletedAt == nil || *m.DeletedBy != 7 {
 		t.Fatalf("pointer fields not assignable as expected: %+v", m)

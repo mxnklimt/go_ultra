@@ -3,7 +3,7 @@
 CREATE TABLE players (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     username        TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    rating          INTEGER NOT NULL DEFAULT 1500,
+    rating          REAL NOT NULL DEFAULT 1500.00,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
 );
 -- +goose StatementEnd
@@ -19,12 +19,12 @@ CREATE TABLE matches (
     loser_id        INTEGER NOT NULL REFERENCES players(id),
     submitter_id    INTEGER NOT NULL REFERENCES players(id),
 
-    winner_rating_before  INTEGER NOT NULL,
-    loser_rating_before   INTEGER NOT NULL,
-    winner_rating_after   INTEGER NOT NULL,
-    loser_rating_after    INTEGER NOT NULL,
-    winner_delta          INTEGER NOT NULL,
-    loser_delta           INTEGER NOT NULL,
+    winner_rating_before  REAL NOT NULL,
+    loser_rating_before   REAL NOT NULL,
+    winner_rating_after   REAL NOT NULL,
+    loser_rating_after    REAL NOT NULL,
+    winner_delta          REAL NOT NULL,
+    loser_delta           REAL NOT NULL,
 
     played_at       TEXT NOT NULL,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
@@ -33,9 +33,9 @@ CREATE TABLE matches (
     deleted_by      INTEGER REFERENCES players(id),
 
     CHECK (winner_id != loser_id),
-    CHECK (winner_rating_after = winner_rating_before + winner_delta),
-    CHECK (loser_rating_after  = loser_rating_before  + loser_delta),
-    CHECK (winner_delta + loser_delta = 0)
+    CHECK (ABS(winner_rating_after - (winner_rating_before + winner_delta)) < 0.001),
+    CHECK (ABS(loser_rating_after  - (loser_rating_before  + loser_delta)) < 0.001),
+    CHECK (ABS(winner_delta + loser_delta) < 0.001)
 );
 -- +goose StatementEnd
 

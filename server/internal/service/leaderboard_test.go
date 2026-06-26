@@ -106,7 +106,7 @@ func TestLeaderboardService_CompareData_SeriesAndHeadToHead(t *testing.T) {
 			t.Fatalf("series %q has no points", s.Username)
 		}
 		if s.Points[0].Rating != domain.DefaultRating {
-			t.Fatalf("series %q first point rating = %d, want %d", s.Username, s.Points[0].Rating, domain.DefaultRating)
+			t.Fatalf("series %q first point rating = %v, want %v", s.Username, s.Points[0].Rating, domain.DefaultRating)
 		}
 		if s.Color == "" {
 			t.Fatalf("series %q has empty color", s.Username)

@@ -27,17 +27,17 @@ func TestMatchService_Record_WinnerIsSubmitterOnWin(t *testing.T) {
 	}
 	// 单局零和
 	if res.WinnerDelta+res.LoserDelta != 0 {
-		t.Fatalf("not zero-sum: winner=%d loser=%d", res.WinnerDelta, res.LoserDelta)
+		t.Fatalf("not zero-sum: winner=%v loser=%v", res.WinnerDelta, res.LoserDelta)
 	}
-	// 平分对局：delta 应为 round(16*0.5)=8
-	if res.WinnerDelta != 8 {
-		t.Fatalf("winner delta = %d, want 8 (equal ratings)", res.WinnerDelta)
+	// 平分对局：delta 应为 round2(16*0.5)=8.00
+	if res.WinnerDelta != 8.0 {
+		t.Fatalf("winner delta = %v, want 8.0 (equal ratings)", res.WinnerDelta)
 	}
 	if res.NewSelfRating != domain.DefaultRating+res.WinnerDelta {
-		t.Fatalf("self rating = %d, want %d", res.NewSelfRating, domain.DefaultRating+res.WinnerDelta)
+		t.Fatalf("self rating = %v, want %v", res.NewSelfRating, domain.DefaultRating+res.WinnerDelta)
 	}
 	if res.NewOpponentRating != domain.DefaultRating+res.LoserDelta {
-		t.Fatalf("opponent rating = %d, want %d", res.NewOpponentRating, domain.DefaultRating+res.LoserDelta)
+		t.Fatalf("opponent rating = %v, want %v", res.NewOpponentRating, domain.DefaultRating+res.LoserDelta)
 	}
 }
 
@@ -56,10 +56,10 @@ func TestMatchService_Record_LossSwapsWinner(t *testing.T) {
 		t.Fatalf("Record error: %v", err)
 	}
 	if res.NewSelfRating >= domain.DefaultRating {
-		t.Fatalf("submitter (loser) should lose rating, got %d", res.NewSelfRating)
+		t.Fatalf("submitter (loser) should lose rating, got %v", res.NewSelfRating)
 	}
 	if res.NewOpponentRating <= domain.DefaultRating {
-		t.Fatalf("opponent (winner) should gain rating, got %d", res.NewOpponentRating)
+		t.Fatalf("opponent (winner) should gain rating, got %v", res.NewOpponentRating)
 	}
 	if res.WinnerDelta+res.LoserDelta != 0 {
 		t.Fatalf("not zero-sum")
@@ -113,7 +113,7 @@ func TestMatchService_Record_SumConservedOver100Games(t *testing.T) {
 			t.Fatalf("Record #%d error: %v", i, err)
 		}
 	}
-	// 录入 100 局后，两人 rating 之和必须守恒
+	// 录入 100 局后，两人 rating 之和必须守恒（允许浮点误差 < 0.01）
 	pa, err := psvc.GetByUsername(ctx, "alice")
 	if err != nil {
 		t.Fatalf("GetByUsername alice: %v", err)
@@ -122,8 +122,9 @@ func TestMatchService_Record_SumConservedOver100Games(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetByUsername bob: %v", err)
 	}
-	if pa.Rating+pb.Rating != initialSum {
-		t.Fatalf("sum not conserved: %d + %d = %d, want %d", pa.Rating, pb.Rating, pa.Rating+pb.Rating, initialSum)
+	sum := pa.Rating + pb.Rating
+	if sum < initialSum-0.01 || sum > initialSum+0.01 {
+		t.Fatalf("sum not conserved: %v + %v = %v, want %v", pa.Rating, pb.Rating, sum, initialSum)
 	}
 	_ = alice
 	_ = bob
@@ -168,13 +169,13 @@ func TestMatchService_ListGlobal_And_ListByPlayer_View(t *testing.T) {
 		t.Fatalf("result = %q, want win", mv.Result)
 	}
 	if mv.RatingBefore != domain.DefaultRating {
-		t.Fatalf("rating before = %d, want %d", mv.RatingBefore, domain.DefaultRating)
+		t.Fatalf("rating before = %v, want %v", mv.RatingBefore, domain.DefaultRating)
 	}
 	if mv.RatingAfter != mv.RatingBefore+mv.Delta {
-		t.Fatalf("rating math broken: before=%d after=%d delta=%d", mv.RatingBefore, mv.RatingAfter, mv.Delta)
+		t.Fatalf("rating math broken: before=%v after=%v delta=%v", mv.RatingBefore, mv.RatingAfter, mv.Delta)
 	}
 	if mv.Delta <= 0 {
-		t.Fatalf("winner delta should be positive, got %d", mv.Delta)
+		t.Fatalf("winner delta should be positive, got %v", mv.Delta)
 	}
 }
 
@@ -202,7 +203,7 @@ func TestMatchService_ListByPlayer_LoserPerspective(t *testing.T) {
 		t.Fatalf("result = %q, want loss", mv.Result)
 	}
 	if mv.Delta >= 0 {
-		t.Fatalf("loser delta should be negative, got %d", mv.Delta)
+		t.Fatalf("loser delta should be negative, got %v", mv.Delta)
 	}
 }
 
@@ -230,10 +231,10 @@ func TestMatchService_History_PrependsStartPoint(t *testing.T) {
 		t.Fatalf("first point time = %v, want %v", points[0].PlayedAt, createdAt.UTC())
 	}
 	if points[0].Rating != domain.DefaultRating {
-		t.Fatalf("first point rating = %d, want %d", points[0].Rating, domain.DefaultRating)
+		t.Fatalf("first point rating = %v, want %v", points[0].Rating, domain.DefaultRating)
 	}
 	if points[1].Rating <= domain.DefaultRating {
-		t.Fatalf("second point should reflect a win, got %d", points[1].Rating)
+		t.Fatalf("second point should reflect a win, got %v", points[1].Rating)
 	}
 }
 
@@ -269,10 +270,11 @@ func TestMatchService_Record_ConcurrentNoBusyErrors(t *testing.T) {
 			t.Fatalf("concurrent Record failed (expected 0 errors with _txlock=immediate): %v", err)
 		}
 	}
-	// 并发录入后两人 rating 之和必须守恒
+	// 并发录入后两人 rating 之和必须守恒（允许浮点误差 < 0.01）
 	pa, _ := psvc.GetByUsername(ctx, "alice")
 	pb, _ := psvc.GetByUsername(ctx, "bob")
-	if pa.Rating+pb.Rating != 2*domain.DefaultRating {
-		t.Fatalf("sum not conserved after concurrent records: %d + %d", pa.Rating, pb.Rating)
+	sum := pa.Rating + pb.Rating
+	if sum < 2*domain.DefaultRating-0.01 || sum > 2*domain.DefaultRating+0.01 {
+		t.Fatalf("sum not conserved after concurrent records: %v + %v = %v", pa.Rating, pb.Rating, sum)
 	}
 }

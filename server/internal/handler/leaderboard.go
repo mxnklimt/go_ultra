@@ -26,15 +26,15 @@ type leaderboardHandler struct {
 type leaderboardRowDTO struct {
 	Rank        int     `json:"rank"`
 	Username    string  `json:"username"`
-	Rating      int     `json:"rating"`
+	Rating      float64 `json:"rating"`
 	Dan         int     `json:"dan"`
 	GamesPlayed int     `json:"games_played"`
 	WinRate     float64 `json:"win_rate"`
 }
 
 type comparePointDTO struct {
-	PlayedAt string `json:"played_at"`
-	Rating   int    `json:"rating"`
+	PlayedAt string  `json:"played_at"`
+	Rating   float64 `json:"rating"`
 }
 
 type compareSeriesDTO struct {

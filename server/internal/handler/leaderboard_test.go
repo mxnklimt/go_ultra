@@ -26,10 +26,10 @@ func TestLeaderboard_ReturnsRanks(t *testing.T) {
 		t.Fatalf("status = %d, want 200; body=%s", w.Code, w.Body.String())
 	}
 	var rows []struct {
-		Rank     int    `json:"rank"`
-		Username string `json:"username"`
-		Rating   int    `json:"rating"`
-		Dan      int    `json:"dan"`
+		Rank     int     `json:"rank"`
+		Username string  `json:"username"`
+		Rating   float64 `json:"rating"`
+		Dan      int     `json:"dan"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &rows); err != nil {
 		t.Fatalf("invalid json %q: %v", w.Body.String(), err)
