@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -10,6 +11,7 @@ import (
 )
 
 func TestBuildRouter_Healthz(t *testing.T) {
+	t.Cleanup(func() { os.RemoveAll("logs") })
 	cfg := config.Config{
 		DBPath: filepath.Join(t.TempDir(), "smoke.db"),
 		Addr:   ":0",
