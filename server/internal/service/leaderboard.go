@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"go_ultra/internal/db/sqlc"
 	"go_ultra/internal/domain"
@@ -101,14 +102,13 @@ func (s *LeaderboardService) CompareData(ctx context.Context, usernames []string
 		points []HistoryPoint
 	}
 	entries := make([]entry, 0, len(usernames))
-	idByName := make(map[string]int64, len(usernames))
 
 	matchSvc := NewMatchService(s.q, s.db)
 
-	for i, name := range usernames {
+	for _, name := range usernames {
 		row, err := s.q.GetPlayerByUsername(ctx, name)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				return CompareResult{}, domain.ErrPlayerNotFound
 			}
 			return CompareResult{}, domain.ErrInternal.WithCause(err)
@@ -122,8 +122,6 @@ func (s *LeaderboardService) CompareData(ctx context.Context, usernames []string
 			return CompareResult{}, herr
 		}
 		entries = append(entries, entry{player: p, points: points})
-		idByName[p.Username] = p.ID
-		_ = i
 	}
 
 	series := make([]CompareSeries, 0, len(entries))
