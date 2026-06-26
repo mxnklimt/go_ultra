@@ -1,4 +1,4 @@
-export const RANK_FLOOR = 1050;
+export const RANK_FLOOR = 1050.0;
 
 /**
  * 与后端 domain.Dan 完全一致的段位映射。
@@ -8,7 +8,7 @@ export function danOf(rating: number): number {
   if (rating < RANK_FLOOR) {
     return 0;
   }
-  const tier = Math.floor((rating - 800) / 200);
+  const tier = Math.floor((rating - 800.0) / 200.0);
   if (tier > 9) {
     return 9;
   }

@@ -23,13 +23,13 @@ describe("SubmitMatchDialog", () => {
     vi.spyOn(playersApi, "getMe").mockResolvedValue({
       id: 1,
       username: "alice",
-      rating: 1500,
+      rating: 1500.00,
       dan: 3,
       created_at: "2026-06-25T00:00:00Z",
     });
     vi.spyOn(playersApi, "listPlayers").mockResolvedValue([
-      { id: 1, username: "alice", rating: 1500, dan: 3, games_played: 0, win_rate: 0 },
-      { id: 2, username: "bob", rating: 1500, dan: 3, games_played: 0, win_rate: 0 },
+      { id: 1, username: "alice", rating: 1500.00, dan: 3, games_played: 0, win_rate: 0 },
+      { id: 2, username: "bob", rating: 1500.00, dan: 3, games_played: 0, win_rate: 0 },
     ]);
   });
 
@@ -38,10 +38,10 @@ describe("SubmitMatchDialog", () => {
       .spyOn(matchesApi, "recordMatch")
       .mockResolvedValue({
         id: 10,
-        winner_delta: 8,
-        loser_delta: -8,
-        new_self_rating: 1508,
-        new_opponent_rating: 1492,
+        winner_delta: 8.00,
+        loser_delta: -8.00,
+        new_self_rating: 1508.00,
+        new_opponent_rating: 1492.00,
       });
     const user = userEvent.setup();
     setup();
@@ -51,9 +51,9 @@ describe("SubmitMatchDialog", () => {
     await user.click(await screen.findByText("bob"));
 
     const preview = await screen.findByTestId("elo-preview");
-    expect(preview).toHaveTextContent("1508");
-    expect(preview).toHaveTextContent("+8");
-    expect(preview).toHaveTextContent("1492");
+    expect(preview).toHaveTextContent("1508.00");
+    expect(preview).toHaveTextContent("+8.00");
+    expect(preview).toHaveTextContent("1492.00");
 
     await user.click(screen.getByTestId("submit-match"));
 

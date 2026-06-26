@@ -16,8 +16,8 @@ describe("RatingChart", () => {
     render(
       <RatingChart
         points={[
-          { played_at: "2026-06-01T00:00:00Z", rating: 1500 },
-          { played_at: "2026-06-02T00:00:00Z", rating: 1516 },
+          { played_at: "2026-06-01T00:00:00Z", rating: 1500.00 },
+          { played_at: "2026-06-02T00:00:00Z", rating: 1516.55 },
         ]}
       />,
     );

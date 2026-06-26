@@ -78,7 +78,7 @@ export default function Leaderboard() {
                   <RankBadge rating={row.rating} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {row.rating}
+                  {row.rating.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {row.games_played}
@@ -119,7 +119,7 @@ function PodiumCard({
         <div className="text-3xl font-bold tabular-nums">#{row.rank}</div>
         <div className="text-lg font-semibold">{row.username}</div>
         <RankBadge rating={row.rating} />
-        <div className="text-2xl font-bold tabular-nums">{row.rating}</div>
+        <div className="text-2xl font-bold tabular-nums">{row.rating.toFixed(2)}</div>
         <div className="text-xs text-muted-foreground">
           {row.games_played} 局 · 胜率 {(row.win_rate * 100).toFixed(0)}%
         </div>

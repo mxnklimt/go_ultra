@@ -12,43 +12,35 @@ describe("expectedScore", () => {
 
 describe("computeDelta", () => {
   it.each([
-    [1500, 1500, 8],
-    [1900, 1500, 1],
-    [1500, 1900, 15],
-  ])("computeDelta(%i,%i) = %i", (winner, loser, expected) => {
-    expect(computeDelta(winner, loser)).toBe(expected);
-  });
-
-  it("uses half-away-from-zero rounding (matches Go math.Round)", () => {
-    // 构造一个 K*(1-E) 恰为 .5 的情形难以保证，改为验证非负且整数
-    const d = computeDelta(1600, 1450);
-    expect(Number.isInteger(d)).toBe(true);
-    expect(d).toBeGreaterThan(0);
+    [1500, 1500, 8.00],
+    [1900, 1500, 1.45],
+    [1500, 1900, 14.55],
+  ])("computeDelta(%i,%i) = %f", (winner, loser, expected) => {
+    expect(computeDelta(winner, loser)).toBeCloseTo(expected, 2);
   });
 });
 
 describe("previewMatch", () => {
   it("self win is zero-sum", () => {
     const r = previewMatch(1500, 1500, "win");
-    expect(r.self_delta).toBe(8);
-    expect(r.opponent_delta).toBe(-8);
-    expect(r.self_after).toBe(1508);
-    expect(r.opponent_after).toBe(1492);
-    expect(r.self_delta + r.opponent_delta).toBe(0);
+    expect(r.self_delta).toBeCloseTo(8.00, 2);
+    expect(r.opponent_delta).toBeCloseTo(-8.00, 2);
+    expect(r.self_after).toBeCloseTo(1508.00, 2);
+    expect(r.opponent_after).toBeCloseTo(1492.00, 2);
+    expect(r.self_delta + r.opponent_delta).toBeCloseTo(0, 2);
   });
 
   it("self loss: opponent is winner", () => {
     const r = previewMatch(1500, 1500, "loss");
-    // opponent wins +8 vs equal rating; self loses 8
-    expect(r.self_delta).toBe(-8);
-    expect(r.opponent_delta).toBe(8);
-    expect(r.self_after).toBe(1492);
-    expect(r.opponent_after).toBe(1508);
+    expect(r.self_delta).toBeCloseTo(-8.00, 2);
+    expect(r.opponent_delta).toBeCloseTo(8.00, 2);
+    expect(r.self_after).toBeCloseTo(1492.00, 2);
+    expect(r.opponent_after).toBeCloseTo(1508.00, 2);
   });
 
   it("upset win against stronger opponent gains more", () => {
     const r = previewMatch(1500, 1900, "win");
-    expect(r.self_delta).toBe(15);
-    expect(r.opponent_delta).toBe(-15);
+    expect(r.self_delta).toBeCloseTo(14.55, 2);
+    expect(r.opponent_delta).toBeCloseTo(-14.55, 2);
   });
 });

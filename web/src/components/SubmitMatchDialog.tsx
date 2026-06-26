@@ -78,9 +78,7 @@ export default function SubmitMatchDialog({ trigger }: SubmitMatchDialogProps) {
       }),
     onSuccess: (res) => {
       toast.success(
-        `已录入：你 ${res.winner_delta >= 0 ? "+" : ""}${
-          res.new_self_rating
-        }`,
+        `已录入：你 ${res.winner_delta >= 0 ? "+" : ""}${res.winner_delta.toFixed(2)} → ${res.new_self_rating.toFixed(2)}`,
       );
       qc.invalidateQueries({ queryKey: ["leaderboard"] });
       qc.invalidateQueries({ queryKey: ["me"] });
@@ -161,9 +159,9 @@ export default function SubmitMatchDialog({ trigger }: SubmitMatchDialogProps) {
                       : "text-rose-400"
                   }
                 >
-                  {preview.self_after}（
+                  {preview.self_after.toFixed(2)}（
                   {preview.self_delta >= 0 ? "+" : ""}
-                  {preview.self_delta}）
+                  {preview.self_delta.toFixed(2)}）
                 </span>
               </div>
               <div className="flex justify-between">
@@ -175,9 +173,9 @@ export default function SubmitMatchDialog({ trigger }: SubmitMatchDialogProps) {
                       : "text-rose-400"
                   }
                 >
-                  {preview.opponent_after}（
+                  {preview.opponent_after.toFixed(2)}（
                   {preview.opponent_delta >= 0 ? "+" : ""}
-                  {preview.opponent_delta}）
+                  {preview.opponent_delta.toFixed(2)}）
                 </span>
               </div>
             </div>
