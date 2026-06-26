@@ -32,4 +32,5 @@ var (
 	ErrInvalidBody      = &Error{Code: "INVALID_BODY", Message: "请求体无效", Status: 400}
 	ErrInvalidParam     = &Error{Code: "INVALID_PARAM", Message: "参数无效", Status: 400}
 	ErrInternal         = &Error{Code: "INTERNAL", Message: "服务器内部错误", Status: 500}
+	ErrRateLimited      = &Error{Code: "RATE_LIMITED", Message: "尝试过于频繁，请稍后", Status: 429}
 )

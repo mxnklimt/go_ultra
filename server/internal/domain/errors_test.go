@@ -71,3 +71,22 @@ func TestPredefinedErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestErrRateLimited(t *testing.T) {
+	if ErrRateLimited == nil {
+		t.Fatal("ErrRateLimited must be defined")
+	}
+	if got := ErrRateLimited.Code; got != "RATE_LIMITED" {
+		t.Errorf("Code = %q, want %q", got, "RATE_LIMITED")
+	}
+	if got := ErrRateLimited.Status; got != 429 {
+		t.Errorf("Status = %d, want %d", got, 429)
+	}
+	if ErrRateLimited.Message == "" {
+		t.Error("Message must not be empty")
+	}
+	// 哨兵必须实现 error 接口且 Error() 含 Code，便于日志定位
+	if got := ErrRateLimited.Error(); got == "" {
+		t.Error("Error() must not be empty")
+	}
+}
