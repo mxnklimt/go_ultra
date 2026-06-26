@@ -2,7 +2,7 @@ import { client } from "@/api/client";
 import type {
   AdminStatus,
   AdminLoginResponse,
-  MatchView,
+  DeletedMatch,
 } from "@/api/types";
 
 export async function adminLogin(
@@ -27,8 +27,8 @@ export async function deleteMatch(id: number): Promise<void> {
   await client.delete(`/matches/${id}`);
 }
 
-export async function listDeletedMatches(): Promise<MatchView[]> {
-  const res = await client.get<MatchView[]>("/admin/matches/deleted");
+export async function listDeletedMatches(): Promise<DeletedMatch[]> {
+  const res = await client.get<DeletedMatch[]>("/admin/matches/deleted");
   return res.data;
 }
 

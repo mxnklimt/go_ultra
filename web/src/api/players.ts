@@ -1,6 +1,7 @@
 import { client } from "@/api/client";
 import type {
   Player,
+  PlayerListItem,
   PlayerDetail,
   HistoryPoint,
   MatchView,
@@ -20,8 +21,8 @@ export async function getMe(): Promise<Player> {
   return res.data.player;
 }
 
-export async function listPlayers(): Promise<Player[]> {
-  const res = await client.get<Player[]>("/players");
+export async function listPlayers(): Promise<PlayerListItem[]> {
+  const res = await client.get<PlayerListItem[]>("/players");
   return res.data;
 }
 

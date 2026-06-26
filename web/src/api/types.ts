@@ -8,6 +8,15 @@ export interface Player {
   created_at: string;
 }
 
+export interface PlayerListItem {
+  id: number;
+  username: string;
+  rating: number;
+  dan: number;
+  games_played: number;
+  win_rate: number;
+}
+
 export interface PlayerStats {
   wins: number;
   losses: number;
@@ -49,6 +58,14 @@ export interface MatchView {
   rating_after: number;
   delta: number;
   played_at: string;
+}
+
+export interface DeletedMatch {
+  id: number;
+  winner_id: number;
+  loser_id: number;
+  played_at: string;
+  deleted_at: string;
 }
 
 export interface RecordMatchRequest {
