@@ -1,6 +1,6 @@
 # go_ultra
 
-通用 1v1 竞技游戏等级分系统（朋友圈 &lt;100 人使用）。
+通用 1v1 竞技游戏等级分系统。
 
 - 后端：Go + Gin + SQLite + sqlc
 - 前端：React 18 + TypeScript + Vite + Tailwind + shadcn/ui + ECharts
