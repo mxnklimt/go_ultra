@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -16,9 +17,10 @@ import (
 
 // testServer 持有一个真实装配的 router 与底层依赖，供 HTTP 测试使用。
 type testServer struct {
-	t      *testing.T
-	router http.Handler
-	deps   Deps
+	t              *testing.T
+	router         http.Handler
+	deps           Deps
+	adminPlaintext string
 }
 
 // newTestServer 用临时 sqlite 文件库 + 真实 service 构造一个 router。
@@ -33,17 +35,23 @@ func newTestServer(t *testing.T) *testServer {
 	t.Cleanup(func() { _ = sqlDB.Close() })
 
 	q := sqlc.New(sqlDB)
+	adminSvc := service.NewAdminService(q, sqlDB)
+	plaintext, _, err := adminSvc.EnsurePassword(context.Background())
+	if err != nil {
+		t.Fatalf("EnsurePassword failed: %v", err)
+	}
 	deps := Deps{
 		Player:      service.NewPlayerService(q, sqlDB),
 		Match:       service.NewMatchService(q, sqlDB),
 		Leaderboard: service.NewLeaderboardService(q, sqlDB),
-		Admin:       service.NewAdminService(q, sqlDB),
+		Admin:       adminSvc,
 		Logger:      zerolog.Nop(),
 	}
 	return &testServer{
-		t:      t,
-		router: NewRouter(deps),
-		deps:   deps,
+		t:              t,
+		router:         NewRouter(deps),
+		deps:           deps,
+		adminPlaintext: plaintext,
 	}
 }
 
